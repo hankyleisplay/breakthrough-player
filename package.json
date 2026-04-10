@@ -1,0 +1,92 @@
+{
+  "name": "hankyledevteamplayer",
+  "version": "1.3.4",
+  "description": "Windows desktop media player",
+  "main": "main.js",
+  "author": "hanky",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder --win nsis portable",
+    "dist:demo": "electron-builder --win nsis portable --config demo-builder.json",
+    "build:keygen": "npx pkg .\\tools\\generate-license-key.js --targets node18-win-x64 --output .\\tools\\generate-license-key.exe",
+    "license:server": "node .\\tools\\license-server.js",
+    "update:server": "node ./tools/update-server.js",
+    "publish": "node -r dotenv/config ./node_modules/electron-builder/out/cli/cli.js --win --publish always",
+    "publish:demo": "node -r dotenv/config ./node_modules/electron-builder/out/cli/cli.js --win --publish always --config demo-builder.json"
+  },
+  "build": {
+    "appId": "com.hanky.mediaplayer",
+    "productName": "hankyledevteam Player+",
+    "fileAssociations": [
+      {
+        "ext": [
+          "mp3",
+          "wav",
+          "flac",
+          "m4a",
+          "aac",
+          "ogg",
+          "opus",
+          "mp4",
+          "mkv",
+          "avi",
+          "mov",
+          "webm",
+          "wmv",
+          "m4v"
+        ],
+        "name": "Media File",
+        "description": "Open media files with hankyledevteam Player+",
+        "icon": "icon.png"
+      }
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "index.html",
+      "style.css",
+      "script.js",
+      "main.js",
+      "preload.js",
+      "package.json",
+      "PRODUCT_PAGE.md",
+      "PRICING.md",
+      "EULA.md",
+      "PRIVACY_POLICY.md"
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "icon.png",
+      "publish": [
+        {
+          "provider": "github",
+          "owner": "hankyleisplay",
+          "repo": "hankyledevteamplayer"
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": true,
+      "allowToChangeInstallationDirectory": false,
+      "allowElevation": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "artifactName": "hankyledevteamplayer-setup-${version}.${ext}"
+    }
+  },
+  "devDependencies": {
+    "dotenv": "^16.4.7",
+    "electron": "^31.7.7",
+    "electron-builder": "^24.13.3"
+  },
+  "dependencies": {
+    "discord-rpc": "^4.0.1",
+    "electron-updater": "^6.8.3",
+    "express": "^5.2.1"
+  }
+}

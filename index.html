@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>hankyledevteam Player+</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="top-bar">
+        <div class="brand-block">
+          <span class="brand-kicker" id="brandKicker">Desktop Media Player</span>
+          <h1 id="appTitle">hankyledevteam Player+</h1>
+          <div class="brand-meta-row">
+            <span class="brand-version" id="appVersionLabel">Version loading...</span>
+            <span class="edition-pill hidden" id="editionBadge">Demo Build</span>
+          </div>
+        </div>
+        <div class="top-tools">
+          <div class="toolbar-group toolbar-group-settings">
+            <label class="inline">
+              <span>Theme</span>
+              <div class="custom-select" id="cs-themeSelect" data-original-id="themeSelect">
+                <div class="select-trigger">Dark</div>
+                <div class="select-options hidden">
+                  <div class="option selected" data-value="dark">Dark</div>
+                </div>
+              </div>
+            </label>
+            <label class="inline">
+              <span>Performance</span>
+              <div class="custom-select" id="cs-performanceModeSelect" data-original-id="performanceModeSelect">
+                <div class="select-trigger">Auto</div>
+                <div class="select-options hidden">
+                  <div class="option selected" data-value="auto">Auto</div>
+                  <div class="option" data-value="balanced">Balanced</div>
+                  <div class="option" data-value="eco">Eco</div>
+                  <div class="option" data-value="quality">Quality</div>
+                </div>
+              </div>
+            </label>
+            <label class="inline">
+              <span>Preset</span>
+              <div class="custom-select" id="cs-themePreset" data-original-id="themePreset">
+                <div class="select-trigger">Neon</div>
+                <div class="select-options hidden">
+                  <div class="option selected" data-value="neon">Neon</div>
+                  <div class="option" data-value="minimal">Minimal</div>
+                  <div class="option" data-value="warm">Warm</div>
+                </div>
+              </div>
+            </label>
+            <label class="inline fx-inline">
+              <span>FX Hue</span>
+              <input id="playbackHue" type="range" min="170" max="340" step="1" value="205" />
+            </label>
+            <label class="inline fx-inline">
+              <span>FX Intensity</span>
+              <input id="playbackIntensity" type="range" min="0.2" max="1.6" step="0.05" value="1" />
+            </label>
+            <button id="playbackFxResetBtn" type="button" title="Reset playback visual color">FX Reset</button>
+          </div>
+          <div class="toolbar-group toolbar-group-actions">
+            <label id="addMediaBtn" class="file-picker" for="mediaInput">Add Media</label>
+            <input id="mediaInput" type="file" accept="audio/*,video/*" multiple />
+            <label id="addFolderBtn" class="file-picker folder" for="folderInput">Add Folder</label>
+            <input id="folderInput" type="file" accept="audio/*,video/*" multiple webkitdirectory directory />
+            <label class="file-picker sub" for="subtitleInput" id="subtitlePickerLabel">Add Subtitle/Lyrics</label>
+            <input id="subtitleInput" type="file" accept=".srt,.vtt,.lrc,text/vtt,application/x-subrip,text/plain" />
+          </div>
+          <div class="toolbar-group toolbar-group-meta">
+            <button id="checkUpdatesBtn" type="button" title="Check for updates now">Check Updates</button>
+            <button id="reconnectRpcBtn" type="button" title="Reconnect Discord Rich Presence">Reconnect RPC</button>
+            <button id="debugConsoleBtn" type="button" title="Open in-app debug console">Debug Console</button>
+            <button id="aiRepairBtn" type="button" title="Run AI auto repair for common issues">AI Auto Repair</button>
+            <button id="installYtDlpBtn" type="button" title="Install yt-dlp for artwork fallback">Install yt-dlp</button>
+            <button id="setDefaultPlayerBtn" type="button" title="Open Windows Default Apps to set this app as your default media player">Set Default Player</button>
+            <button id="discordInstallBtnManual" type="button" title="Install Discord client for full Discord integration">Install Discord</button>
+            <button id="activateBtn" type="button">Activate Pro</button>
+            <button id="legalBtn" type="button">Legal</button>
+            <div class="status" id="licenseBadge">License: Free</div>
+          </div>
+        </div>
+      </header>
+
+      <section class="player-panel" id="playerPanel">
+        <video id="media" controlslist="nodownload" playsinline></video>
+
+        <div class="audio-view" id="audioView">
+          <div class="cover-card" id="coverCard">
+            <div class="cover-disc"></div>
+            <div class="cover-meta">
+              <strong id="coverTitle">No track selected</strong>
+              <span id="coverSubtitle">hankyledevteam Player+</span>
+            </div>
+          </div>
+          <div class="visualizer-stage">
+            <canvas id="waveCanvas" width="1280" height="360" aria-label="Waveform Visualizer"></canvas>
+          </div>
+          <canvas id="spectrumCanvas" width="1280" height="220" aria-label="Spectrum Visualizer"></canvas>
+        </div>
+
+        <div class="empty-state" id="emptyState">Please add media files to start playback.</div>
+      </section>
+
+      <section class="media-insights" id="mediaInsights">
+        <div class="media-info-item">
+          <span class="media-info-label">Format</span>
+          <strong id="mediaInfoFormat">No media</strong>
+        </div>
+        <div class="media-info-item">
+          <span class="media-info-label">Resolution</span>
+          <strong id="mediaInfoResolution">-</strong>
+        </div>
+        <div class="media-info-item">
+          <span class="media-info-label">Duration</span>
+          <strong id="mediaInfoDuration">00:00</strong>
+        </div>
+        <div class="media-info-item">
+          <span class="media-info-label">Details</span>
+          <strong id="mediaInfoDetails">-</strong>
+        </div>
+        <div class="media-info-item media-info-item-wide">
+          <span class="media-info-label">Source</span>
+          <strong id="mediaInfoSource">Library idle</strong>
+        </div>
+      </section>
+
+      <section class="controls">
+        <div class="control-row control-row-primary">
+          <button id="playBtn" class="icon-btn" type="button" title="Play/Pause" aria-label="Play/Pause">&#9654;</button>
+          <button id="prevBtn" class="icon-btn" type="button" title="Previous" aria-label="Previous">&#9198;</button>
+          <button id="nextBtn" class="icon-btn" type="button" title="Next" aria-label="Next">&#9197;</button>
+          <div class="divider"></div>
+          <button id="fullscreenBtn" class="icon-btn" type="button" title="Fullscreen" aria-label="Fullscreen">&#9974;</button>
+          <button id="miniBtn" class="icon-btn" type="button" title="Mini Player" aria-label="Mini Player">&#9723;</button>
+          <button id="muteBtn" class="icon-btn" type="button" title="Mute" aria-label="Mute">&#128266;</button>
+          <button id="pipBtn" class="icon-btn" type="button" title="Picture-in-Picture" aria-label="PiP">&#128470;</button>
+          <button id="screenshotBtn" class="icon-btn" type="button" title="Screenshot" aria-label="Screenshot">&#128247;</button>
+          <button id="effectsBtn" class="icon-btn" type="button" title="Video Effects" aria-label="Effects">&#127912;</button>
+          <div class="divider"></div>
+          <button id="loopBtn" class="icon-btn" type="button" title="Loop" aria-label="Loop">&#128257;</button>
+          <button id="shuffleBtn" class="icon-btn" type="button" title="Shuffle" aria-label="Shuffle">&#128256;</button>
+          
+          <div class="divider"></div>
+          <button id="abBtnA" class="btn-mini" type="button" title="Set A (Start)">Set A</button>
+          <button id="abBtnB" class="btn-mini" type="button" title="Set B (End)">Set B</button>
+          <button id="abBtnReset" class="btn-mini" type="button" title="Reset A-B">Off</button>
+        </div>
+
+        <div class="control-row">
+          <label class="inline grow">
+            <span>Seek</span>
+            <input id="seek" type="range" min="0" max="100" value="0" />
+          </label>
+          <div class="time" id="timeLabel">00:00 / 00:00</div>
+        </div>
+
+        <div class="control-row">
+          <label class="inline grow">
+            <span>Volume</span>
+            <input id="volume" type="range" min="0" max="1" step="0.01" value="1" />
+          </label>
+
+          <label class="inline">
+            <span>Speed</span>
+            <div class="custom-select drop-up" id="cs-speed" data-original-id="speed">
+              <div class="select-trigger">1x</div>
+              <div class="select-options hidden">
+                <div class="option" data-value="0.5">0.5x</div>
+                <div class="option" data-value="0.75">0.75x</div>
+                <div class="option selected" data-value="1">1x</div>
+                <div class="option" data-value="1.25">1.25x</div>
+                <div class="option" data-value="1.5">1.5x</div>
+                <div class="option" data-value="2">2x</div>
+              </div>
+            </div>
+          </label>
+
+          <label class="inline">
+            <span>Aspect</span>
+            <div class="custom-select drop-up" id="cs-aspectRatio" data-original-id="aspectRatio">
+              <div class="select-trigger">Original</div>
+              <div class="select-options hidden">
+                <div class="option selected" data-value="original">Original</div>
+                <div class="option" data-value="16-9">16:9 Wide</div>
+                <div class="option" data-value="4-3">4:3 Standard</div>
+                <div class="option" data-value="fill">Fill Screen</div>
+              </div>
+            </div>
+          </label>
+
+          <div class="status" id="statusLabel">Not playing</div>
+        </div>
+
+        <div class="control-row helper-row">
+          <div class="hint">Hotkeys: Space Play/Pause, Left/Right Seek, Up/Down Volume, F Fullscreen, M Mute, N Next, P Previous.</div>
+          <div class="subtitle-controls">
+            <button id="subSyncMinus" class="btn-tiny" title="Subtitle -0.5s">-0.5s</button>
+            <div class="status" id="subtitleStatus">Subtitle: none</div>
+            <button id="subSyncPlus" class="btn-tiny" title="Subtitle +0.5s">+0.5s</button>
+            <span id="subOffsetVal" class="status-val">(0.0s)</span>
+          </div>
+          <div class="lyrics-panel" id="lyricsPanel">
+            <div class="lyrics-search-row">
+              <input id="lyricsSearchInput" type="search" placeholder="Search lyrics (lrclib)" />
+              <button id="lyricsSearchBtn" type="button" title="Search lyrics from lrclib">Search Lyrics</button>
+            </div>
+            <div class="lyrics-search-row">
+              <div class="custom-select lyrics-results-select" id="cs-lyricsResults" data-original-id="lyricsResults">
+                <div class="select-trigger">No results</div>
+                <div class="select-options hidden"></div>
+              </div>
+              <button id="lyricsApplyBtn" type="button" title="Apply selected result">Apply</button>
+              <button id="lyricsSaveBtn" type="button" title="Save selected result as local LRC">Save LRC</button>
+            </div>
+            <div class="lyrics-status" id="lyricsStatus">Lyrics: none</div>
+            <div class="lyrics-line" id="lyricsLine">-</div>
+          </div>
+          <button id="normalizeBtn" class="btn-tiny" type="button" title="Auto loudness leveling">Normalize: Off</button>
+          <div class="status" id="gainReductionStatus">Gain Reduction: 0.0 dB</div>
+          <label class="inline">
+            <span>Sleep</span>
+            <div class="custom-select drop-up" id="cs-sleepTimer" data-original-id="sleepTimer">
+              <div class="select-trigger">Off</div>
+              <div class="select-options hidden">
+                <div class="option selected" data-value="off">Off</div>
+                <div class="option" data-value="15">15 min</div>
+                <div class="option" data-value="30">30 min</div>
+                <div class="option" data-value="60">60 min</div>
+                <div class="option" data-value="90">90 min</div>
+                <div class="option" data-value="end">After current</div>
+              </div>
+            </div>
+          </label>
+          <div class="status" id="sleepStatus">Sleep: Off</div>
+        </div>
+      </section>
+
+      <section class="eq-panel">
+        <div class="eq-head">
+          <h2>Audio & Effects</h2>
+          <div class="fx-card-grid">
+            <!-- 3D Spatial Card -->
+            <div class="fx-card pro-feature">
+              <div class="fx-card-header">
+                <div class="fx-info">
+                  <h3>3D Spatial Surround <span class="pro-badge">PRO ONLY</span></h3>
+                  <p>Immersive HRTF 3D soundstage</p>
+                </div>
+                <label class="switch">
+                  <input id="fxSurround" type="checkbox" />
+                  <span class="slider-round"></span>
+                </label>
+              </div>
+              <div class="fx-card-body">
+                <div class="range-group">
+                  <div class="range-header">
+                    <span>Surround Depth</span>
+                    <strong id="fxSurroundDepthVal">4.0</strong>
+                  </div>
+                  <input id="fxSurroundDepth" max="10" min="0" step="0.5" type="range" value="4" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Late Night Card -->
+            <div class="fx-card pro-feature">
+              <div class="fx-card-header">
+                <div class="fx-info">
+                  <h3>Late Night Mode <span class="pro-badge">PRO ONLY</span></h3>
+                  <p>Normalize volume for quiet hours</p>
+                </div>
+                <label class="switch">
+                  <input id="fxLateNight" type="checkbox" />
+                  <span class="slider-round"></span>
+                </label>
+              </div>
+              <div class="fx-card-body">
+                <div class="fx-status-text">Compressor active to prevent loud peaks</div>
+              </div>
+            </div>
+            <div class="fx-card">
+              <div class="fx-card-header">
+                <div class="fx-info">
+                  <h3>Smart Gain Guard</h3>
+                  <p>Limiter protection to reduce clipping and sudden peaks</p>
+                </div>
+                <label class="switch">
+                  <input id="fxSmartGain" type="checkbox" />
+                  <span class="slider-round"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+          <section class="fx-group">
+            <div class="fx-header-row">
+              <h3>Video Filters</h3>
+              <button id="eqResetBtn" class="btn-action" type="button">Reset All Filters</button>
+            </div>
+            
+            <div class="fx-controls-row">
+              <label class="inline">
+                <span>Preset</span>
+                <div class="custom-select" id="cs-eqPreset" data-original-id="eqPreset">
+                  <div class="select-trigger">Flat</div>
+                  <div class="select-options hidden">
+                    <div class="option selected" data-value="flat">Flat</div>
+                    <div class="option" data-value="bassBoost">Bass Boost</div>
+                    <div class="option" data-value="vocal">Vocal</div>
+                    <div class="option" data-value="trebleBoost">Treble Boost</div>
+                  </div>
+                </div>
+              </label>
+            </div>
+          </section>
+
+        <div id="proEqGrid" class="eq-grid pro-eq-grid">
+            <div class="eq-item-v"><input type="range" class="eq-v" id="eq_31" min="-12" max="12" value="0"><span>31</span></div>
+            <div class="eq-item-v"><input type="range" class="eq-v" id="eq_62" min="-12" max="12" value="0"><span>62</span></div>
+            <div class="eq-item-v"><input type="range" class="eq-v" id="eq_125" min="-12" max="12" value="0"><span>125</span></div>
+            <div class="eq-item-v"><input type="range" class="eq-v" id="eq_250" min="-12" max="12" value="0"><span>250</span></div>
+            <div class="eq-item-v"><input type="range" class="eq-v" id="eq_500" min="-12" max="12" value="0"><span>500</span></div>
+            <div class="eq-item-v"><input type="range" class="eq-v" id="eq_1k" min="-12" max="12" value="0"><span>1K</span></div>
+            <div class="eq-item-v"><input type="range" class="eq-v" id="eq_2k" min="-12" max="12" value="0"><span>2K</span></div>
+            <div class="eq-item-v"><input type="range" class="eq-v" id="eq_4k" min="-12" max="12" value="0"><span>4K</span></div>
+            <div class="eq-item-v"><input type="range" class="eq-v" id="eq_8k" min="-12" max="12" value="0"><span>8K</span></div>
+            <div class="eq-item-v"><input type="range" class="eq-v" id="eq_16k" min="-12" max="12" value="0"><span>16K</span></div>
+        </div>
+      </section>
+
+      <section class="playlist-wrap" id="playlistWrap">
+        <div class="playlist-header">
+          <div class="section-title">
+            <h2>Playlist</h2>
+            <span id="playlistCountLabel">Drag to reorder</span>
+          </div>
+          <div class="playlist-search">
+            <input id="playlistSearchInput" type="search" placeholder="Search playlist" aria-label="Search playlist" />
+          </div>
+          <div class="playlist-actions">
+            <button class="btn-small" id="favoritesOnlyBtn" title="Show favorites only">Favorites</button>
+            <button class="btn-small" id="sortFavoritesBtn" title="Move favorites to the top">Favorites First</button>
+            <button class="btn-small" id="importPlaylistBtn" title="Import Playlist (.json)">📂 Import</button>
+            <button class="btn-small" id="exportPlaylistBtn" title="Export Playlist (.json)">💾 Export</button>
+            <button class="btn-small" id="clearPlaylistBtn" title="Clear All">🗑️ Clear</button>
+          </div>
+        </div>
+        <ul id="playlist" class="playlist"></ul>
+        <div class="recent-history">
+          <div class="section-title">
+            <h2>Recent</h2>
+            <span>Recently played tracks</span>
+          </div>
+          <ul id="recentHistory" class="recent-history-list"></ul>
+        </div>
+      </section>
+    </main>
+
+    <div id="playlistMenu" class="context-menu hidden" role="menu" aria-label="Playlist menu">
+      <button data-action="play" type="button">Play now</button>
+      <button data-action="queueNext" type="button">Queue Next</button>
+      <button data-action="favorite" id="favoriteTrackAction" type="button">Add to favorites</button>
+      <button data-action="rename" type="button">Rename</button>
+      <button data-action="up" type="button">Move up</button>
+      <button data-action="down" type="button">Move down</button>
+      <button data-action="remove" type="button">Remove</button>
+    </div>
+
+    <div id="licenseModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="licenseTitle">
+      <div class="modal-card">
+        <h2 id="licenseTitle">Activate Pro</h2>
+        <p id="licenseHint">A 30-day Pro trial starts automatically on first launch. Enter your HWID-bound product key to keep Pro permanently.</p>
+        <div class="license-hwid-row">
+          <div class="status" id="hwidValue">HWID: loading...</div>
+          <button id="copyHwidBtn" type="button">Copy HWID</button>
+        </div>
+        <input id="licenseKeyInput" class="license-input" type="text" placeholder="HLP-XXXX-XXXX-XXXX" />
+        <div class="license-row">
+          <button id="licenseApplyBtn" type="button">Activate</button>
+          <button id="licenseClearBtn" type="button">Clear Pro License</button>
+          <button id="licenseCloseBtn" type="button">Cancel</button>
+        </div>
+        <div class="status" id="licenseMessage">Status: waiting for key</div>
+      </div>
+    </div>
+
+    <div id="legalModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="legalTitle">
+      <div class="modal-card legal-card">
+        <h2 id="legalTitle">Legal & Copyright</h2>
+        <p>Copyright (c) 2026 hankyledevteam. All rights reserved.</p>
+        <p>This product includes open-source components distributed under their respective licenses.</p>
+        <div class="legal-list">
+          <button class="doc-link-btn" type="button" data-doc="./EULA.md" data-doc-title="EULA">View EULA</button>
+          <button class="doc-link-btn" type="button" data-doc="./PRIVACY_POLICY.md" data-doc-title="Privacy Policy">View Privacy Policy</button>
+          <button class="doc-link-btn" type="button" data-doc="./PRODUCT_PAGE.md" data-doc-title="Product Page">View Product Page</button>
+        </div>
+        <pre class="legal-note">Third-party notices (summary)
+- Electron: MIT License
+- electron-builder: MIT License
+- pkg: MIT License (keygen build tool)</pre>
+        <button id="legalCloseBtn" type="button">Close</button>
+      </div>
+    </div>
+
+    <div id="welcomeModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle">
+      <div class="modal-card">
+        <h2 id="welcomeTitle">Welcome</h2>
+        <p>Thank you for using this app, Build From Hankyledevteam.</p>
+        <p>Commercial docs:
+          <button class="inline-doc-link" type="button" data-doc="./PRODUCT_PAGE.md" data-doc-title="Product Page">Product Page</button>
+          ·
+          <button class="inline-doc-link" type="button" data-doc="./EULA.md" data-doc-title="EULA">EULA</button>
+          ·
+          <button class="inline-doc-link" type="button" data-doc="./PRIVACY_POLICY.md" data-doc-title="Privacy Policy">Privacy</button>
+        </p>
+        <button id="welcomeCloseBtn" type="button">Got it</button>
+      </div>
+    </div>
+
+    <div id="docModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="docTitle">
+      <div class="modal-card doc-viewer-card">
+        <div class="doc-viewer-head">
+          <h2 id="docTitle">Document</h2>
+          <button id="docCloseBtn" type="button">Close</button>
+        </div>
+        <div id="docContent" class="doc-content"></div>
+      </div>
+    </div>
+
+    <div id="debugModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="debugTitle">
+      <div class="modal-card debug-card">
+        <div class="doc-viewer-head">
+          <h2 id="debugTitle">Debug Console</h2>
+          <div class="license-row">
+            <button id="debugClearBtn" type="button">Clear</button>
+            <button id="debugCloseBtn" type="button">Close</button>
+          </div>
+        </div>
+        <pre id="debugConsole" class="debug-console"></pre>
+      </div>
+    </div>
+
+
+
+    <div id="effectsModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="effectsTitle">
+      <div class="modal-card">
+        <h2 id="effectsTitle">Video Effects</h2>
+        <div class="eq-grid fx-modal-grid">
+          <label class="eq-item">
+            <span>Brightness</span>
+            <input id="fxBrightness" type="range" min="0" max="2" step="0.05" value="1" />
+            <strong id="fxBrightnessVal">1.0</strong>
+          </label>
+          <label class="eq-item">
+            <span>Contrast</span>
+            <input id="fxContrast" type="range" min="0" max="2" step="0.05" value="1" />
+            <strong id="fxContrastVal">1.0</strong>
+          </label>
+          <label class="eq-item">
+            <span>Saturation</span>
+            <input id="fxSaturate" type="range" min="0" max="3" step="0.1" value="1" />
+            <strong id="fxSaturateVal">1.0</strong>
+          </label>
+          <label class="eq-item">
+            <span>Hue Rotate</span>
+            <input id="fxHue" type="range" min="0" max="360" step="5" value="0" />
+            <strong id="fxHueVal">0deg</strong>
+          </label>
+          <label class="eq-item" style="grid-column: span 2; flex-direction: row; justify-content: space-between; align-items: center;">
+            <span>Ambilight Glow (Pro)</span>
+            <input id="fxAmbilight" type="checkbox" style="width: 20px; height: 20px;" />
+          </label>
+        </div>
+        <div class="license-row" style="margin-top: 15px;">
+          <button id="fxResetBtn" type="button">Reset Effects</button>
+          <button id="fxCloseBtn" type="button">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <canvas id="ambilightCanvas" width="10" height="10" style="display: none;"></canvas>
+    <div id="updateToast" class="update-toast hidden" role="status" aria-live="polite"></div>
+    <script src="./script.js"></script>
+
+  </body>
+</html>

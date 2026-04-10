@@ -1,0 +1,15 @@
+{
+  "appId": "com.hanky.mediaplayer.demo",
+  "productName": "hankyledevteam Player+ Demo",
+  "directories": {
+    "output": "release-demo"
+  },
+  "extraMetadata": {
+    "name": "hankyledevteamplayer-demo",
+    "productName": "hankyledevteam Player+ Demo",
+    "demoBuild": true
+  },
+  "nsis": {
+    "artifactName": "hankyledevteamplayer-demo-setup-${version}.${ext}"
+  }
+}

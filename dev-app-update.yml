@@ -1,0 +1,3 @@
+# Stable development update configuration
+provider: generic
+url: https://github.com/hankyleisplay/hankyledevteamplayer/releases/latest/download
