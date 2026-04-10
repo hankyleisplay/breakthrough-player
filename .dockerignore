@@ -1,0 +1,6 @@
+*
+!Dockerfile
+!license-api/
+!license-api/package.json
+!license-api/server.js
+!license-api/README.md
