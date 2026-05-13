@@ -2542,7 +2542,8 @@ function parseLrc(content) {
 function parseTrackQueryParts(query) {
   const raw = String(query || "").trim();
   if (!raw) return { artist: "", track: "" };
-  const byDash = raw.split(/\s[-|]\s/);
+  // Split by dash (with or without spaces) or pipe
+  const byDash = raw.split(/\s*[-|]\s*/);
   if (byDash.length >= 2) {
     return {
       artist: byDash[0].trim(),
@@ -2571,22 +2572,42 @@ function setLyricsFromLrcString(lrcText, label = "Online lyrics") {
   return true;
 }
 
-async function searchLyricsFromLrclib(query) {
-  const { artist, track } = parseTrackQueryParts(query);
-  const params = new URLSearchParams();
-  if (artist) params.set("artist_name", artist);
-  if (track) params.set("track_name", track);
-  if (!artist && !track) params.set("q", String(query || "").trim());
-  const url = `https://lrclib.net/api/search?${params.toString()}`;
+function cleanLyricsQuery(query) {
+  return String(query || "")
+    .replace(/\.[a-z0-9]{3,4}$/i, "") // Remove extension
+    .replace(/\((official|lyrics|video|audio|hd|4k|high quality|hq|remastered)\)/gi, "")
+    .replace(/\[(official|lyrics|video|audio|hd|4k|high quality|hq|remastered)\]/gi, "")
+    .trim();
+}
 
-  const response = await fetch(url, {
-    headers: { Accept: "application/json" }
-  });
-  if (!response.ok) {
-    throw new Error(`lrclib HTTP ${response.status}`);
+async function searchLyricsFromLrclib(query) {
+  const cleanedQuery = cleanLyricsQuery(query);
+  const { artist, track } = parseTrackQueryParts(cleanedQuery);
+  
+  const fetchFromApi = async (params) => {
+    const url = `https://lrclib.net/api/search?${params.toString()}`;
+    const response = await fetch(url, { headers: { Accept: "application/json" } });
+    if (!response.ok) return [];
+    return await response.json();
+  };
+
+  let items = [];
+  
+  // Step 1: Try specific Artist/Track search if we have both
+  if (artist && track) {
+    const p1 = new URLSearchParams();
+    p1.set("artist_name", artist);
+    p1.set("track_name", track);
+    items = await fetchFromApi(p1);
   }
 
-  const items = await response.json();
+  // Step 2: Fallback to global q search if no results or if only track exists
+  if (!items || items.length === 0) {
+    const p2 = new URLSearchParams();
+    p2.set("q", cleanedQuery);
+    items = await fetchFromApi(p2);
+  }
+
   if (!Array.isArray(items) || items.length === 0) return [];
   return items
     .filter((item) => item && (item.syncedLyrics || item.plainLyrics))
