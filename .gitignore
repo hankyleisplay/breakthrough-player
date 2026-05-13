@@ -7,4 +7,5 @@ release-demo/
 tools/generate-license-key.js
 tools/license-server.js
 tools/*.exe
-
+license-api/*
+tools/*

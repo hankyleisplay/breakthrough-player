@@ -98,6 +98,20 @@ const setDefaultPlayerBtn = document.getElementById("setDefaultPlayerBtn");
 const discordInstallBtnManual = document.getElementById("discordInstallBtnManual");
 const legalBtn = document.getElementById("legalBtn");
 const licenseBadge = document.getElementById("licenseBadge");
+
+// NEW: Additional Feature Elements
+const visualizerModeSelect = document.getElementById("cs-visualizerMode");
+const lyricsBtn = document.getElementById("lyricsBtn");
+const zenBtn = document.getElementById("zenBtn");
+const lyricsOverlay = document.getElementById("lyricsOverlay");
+const lyricsContent = document.getElementById("lyricsContent");
+const osd = document.getElementById("osd");
+
+let activeVisualizerMode = "bars"; // bars, wave, circular, particles
+let isZenMode = false;
+let isLyricsOpen = false;
+let currentLyrics = []; // {time, text}
+let osdTimeout = null;
 const licenseModal = document.getElementById("licenseModal");
 const licenseTitle = document.getElementById("licenseTitle");
 const licenseHint = document.getElementById("licenseHint");
@@ -1086,12 +1100,9 @@ function startSpectrumLoop() {
     analyserNode.getByteTimeDomainData(timeDataArray);
 
     let energy = 0;
-    const sampleCount = Math.min(40, freqDataArray.length);
-    for (let i = 0; i < sampleCount; i += 1) {
-      energy += freqDataArray[i];
-    }
-    energy = sampleCount > 0 ? energy / sampleCount / 255 : 0;
-    setPlaybackEnergyLevel(energy);
+    for (let i = 0; i < freqDataArray.length; i++) energy += freqDataArray[i];
+    energy = energy / (freqDataArray.length * 255);
+    document.documentElement.style.setProperty("--playback-energy", energy.toFixed(3));
     rollingEnergy = rollingEnergy * 0.92 + energy * 0.08;
 
     if (autoNormalizeEnabled && preampNode) {
@@ -1106,8 +1117,21 @@ function startSpectrumLoop() {
       gainReductionStatus.textContent = `Gain Reduction: ${Math.abs(reductionDb).toFixed(1)} dB`;
     }
 
-    drawWaveform(timeDataArray, energy);
-    drawSpectrumBars(freqDataArray);
+    if (activeVisualizerMode === "bars") {
+      drawSpectrumBars(freqDataArray);
+      drawWaveform(timeDataArray, energy);
+    } else if (activeVisualizerMode === "wave") {
+      drawWaveform(timeDataArray, energy);
+      drawSpectrumBars(freqDataArray);
+    } else if (activeVisualizerMode === "circular") {
+      drawCircularVisualizer(freqDataArray, energy);
+    } else if (activeVisualizerMode === "particles") {
+      drawParticlesVisualizer(freqDataArray, energy);
+    }
+
+    if (isLyricsOpen) {
+      updateLyricsSync(media.currentTime);
+    }
 
     spectrumAnimationId = requestAnimationFrame(draw);
   };
@@ -4355,3 +4379,180 @@ function initDiscordOnboarding() {
 
 // Start Application
 initApp();
+
+// --- NEW FEATURES LOGIC ---
+
+function showOSD(text) {
+  if (osdTimeout) clearTimeout(osdTimeout);
+  osd.textContent = text;
+  osd.classList.remove("hidden");
+  osdTimeout = setTimeout(() => {
+    osd.classList.add("hidden");
+  }, 1200);
+}
+
+function toggleZenMode() {
+  isZenMode = !isZenMode;
+  document.body.classList.toggle("zen-mode", isZenMode);
+  zenBtn.classList.toggle("active", isZenMode);
+  showOSD(isZenMode ? "Zen Mode On" : "Zen Mode Off");
+}
+
+function toggleLyrics() {
+  if (!isPro && !isDemoBuild) {
+    showLicenseModal("Lyrics Display is a Pro Feature", "Please activate Pro to enjoy synchronized lyrics.");
+    return;
+  }
+  isLyricsOpen = !isLyricsOpen;
+  lyricsOverlay.classList.toggle("hidden", !isLyricsOpen);
+  lyricsBtn.classList.toggle("active", isLyricsOpen);
+  if (isLyricsOpen) {
+    showOSD("Lyrics Enabled");
+    renderLyrics();
+  }
+}
+
+function parseLRC(lrcText) {
+  const lines = lrcText.split("\n");
+  const result = [];
+  const timeReg = /\[(\d{2}):(\d{2})\.(\d{2,3})\]/g;
+  lines.forEach(line => {
+    const match = timeReg.exec(line);
+    if (match) {
+      const min = parseInt(match[1]);
+      const sec = parseInt(match[2]);
+      const ms = parseInt(match[3]);
+      const time = min * 60 + sec + ms / (match[3].length === 3 ? 1000 : 100);
+      const text = line.replace(timeReg, "").trim();
+      if (text) result.push({ time, text });
+    }
+    timeReg.lastIndex = 0;
+  });
+  return result.sort((a, b) => a.time - b.time);
+}
+
+function renderLyrics() {
+  lyricsContent.innerHTML = "";
+  if (currentLyrics.length === 0) {
+    lyricsContent.innerHTML = "<p>No lyrics found for this track.</p>";
+    return;
+  }
+  currentLyrics.forEach((lyric, index) => {
+    const p = document.createElement("p");
+    p.textContent = lyric.text;
+    p.id = `lyric-line-${index}`;
+    p.onclick = () => {
+      media.currentTime = lyric.time;
+    };
+    lyricsContent.appendChild(p);
+  });
+}
+
+function updateLyricsSync(currentTime) {
+  let activeIndex = -1;
+  for (let i = 0; i < currentLyrics.length; i++) {
+    if (currentTime >= currentLyrics[i].time) {
+      activeIndex = i;
+    } else {
+      break;
+    }
+  }
+  if (activeIndex !== -1) {
+    const activeEl = document.getElementById(`lyric-line-${activeIndex}`);
+    if (activeEl && !activeEl.classList.contains("active")) {
+      const prevActive = lyricsContent.querySelector(".active");
+      if (prevActive) prevActive.classList.remove("active");
+      activeEl.classList.add("active");
+      activeEl.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }
+}
+
+function drawCircularVisualizer(freqData, energy) {
+  const width = waveCanvas.width;
+  const height = waveCanvas.height;
+  const palette = getVisualizerPalette();
+  const centerX = width * 0.5;
+  const centerY = height * 0.5;
+  const baseRadius = Math.min(width, height) * 0.2 + energy * 40;
+
+  waveCtx.clearRect(0, 0, width, height);
+  spectrumCtx.clearRect(0, 0, spectrumCanvas.width, spectrumCanvas.height);
+
+  waveCtx.beginPath();
+  waveCtx.arc(centerX, centerY, baseRadius, 0, Math.PI * 2);
+  waveCtx.strokeStyle = palette.line;
+  waveCtx.lineWidth = 4;
+  waveCtx.stroke();
+
+  const bars = 120;
+  const step = Math.floor(freqData.length / bars);
+  
+  for (let i = 0; i < bars; i++) {
+    const angle = (i / bars) * Math.PI * 2;
+    const value = freqData[i * step] / 255;
+    const h = value * 100 * (0.8 + energy);
+    
+    const x1 = centerX + Math.cos(angle) * baseRadius;
+    const y1 = centerY + Math.sin(angle) * baseRadius;
+    const x2 = centerX + Math.cos(angle) * (baseRadius + h);
+    const y2 = centerY + Math.sin(angle) * (baseRadius + h);
+    
+    waveCtx.beginPath();
+    waveCtx.moveTo(x1, y1);
+    waveCtx.lineTo(x2, y2);
+    waveCtx.strokeStyle = `hsla(${180 + i * 2}, 90%, 60%, 0.8)`;
+    waveCtx.lineWidth = 3;
+    waveCtx.stroke();
+  }
+}
+
+function drawParticlesVisualizer(freqData, energy) {
+  const width = waveCanvas.width;
+  const height = waveCanvas.height;
+  
+  waveCtx.fillStyle = "rgba(0, 0, 0, 0.1)";
+  waveCtx.fillRect(0, 0, width, height);
+  spectrumCtx.clearRect(0, 0, spectrumCanvas.width, spectrumCanvas.height);
+
+  const particles = 60;
+  for (let i = 0; i < particles; i++) {
+    const value = freqData[i * 10] / 255;
+    const x = (i / particles) * width;
+    const y = height - value * height * (0.5 + energy);
+    
+    waveCtx.beginPath();
+    waveCtx.arc(x, y, 2 + value * 10, 0, Math.PI * 2);
+    waveCtx.fillStyle = `hsla(${200 + value * 100}, 100%, 70%, ${0.2 + value})`;
+    waveCtx.fill();
+  }
+}
+
+zenBtn.addEventListener("click", toggleZenMode);
+lyricsBtn.addEventListener("click", toggleLyrics);
+visualizerModeSelect.addEventListener("change", (e) => {
+  const mode = e.detail ? e.detail.value : (e.target.getAttribute("data-value") || e.target.value);
+  if ((mode === "circular" || mode === "particles") && !isPro && !isDemoBuild) {
+    showLicenseModal("Premium Visualizer", "This visualizer mode requires a Pro License.");
+    return;
+  }
+  activeVisualizerMode = mode;
+  showOSD(`Visualizer: ${mode}`);
+});
+
+volume.addEventListener("input", (e) => {
+  const val = parseFloat(e.target.value);
+  if (val > 1.0 && !isPro && !isDemoBuild) {
+    e.target.value = 1.0;
+    showLicenseModal("Volume Boost Locked", "Volume boost above 100% requires a Pro License.");
+    return;
+  }
+  media.volume = Math.min(val, 1.0);
+  showOSD(`Volume: ${Math.round(val * 100)}%`);
+});
+
+window.addEventListener("keydown", (e) => {
+  if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+  if (e.key === "z" || e.key === "Z") toggleZenMode();
+  if (e.key === "l" || e.key === "L") toggleLyrics();
+});

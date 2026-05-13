@@ -30,6 +30,11 @@ Output folder:
 - **Mini Player Mode**: Compact UI with an always-on-top window.
 - **Hardware Bound Licensing**: Secure offline and online HWID-based Pro activation system.
 - **Resume playback**: Automatic playback memory by filename.
+- **Zen Mode (Z)**: Instantly hide the UI and focus entirely on your media with a minimalist layout.
+- **Premium Audio Visualizers (Pro)**: New Circular and Particle visualizer modes that react dynamically to frequency data.
+- **Lyrics Sync (L)**: Support for `.lrc` files with auto-scrolling glassmorphic overlay and click-to-seek functionality.
+- **On-Screen Display (OSD)**: Premium visual feedback for volume, speed, and mode changes.
+- **Volume Boost (Pro)**: Unleash up to 200% volume for quiet recordings.
 - **In-app AI Auto Repair**: Instantly diagnose and fix media decoding errors.
 
 ## ⚖️ Semi-Open Source License Model

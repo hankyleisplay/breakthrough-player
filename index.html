@@ -59,6 +59,18 @@
               <span>FX Intensity</span>
               <input id="playbackIntensity" type="range" min="0.2" max="1.6" step="0.05" value="1" />
             </label>
+            <label class="inline">
+              <span>Visualizer</span>
+              <div class="custom-select" id="cs-visualizerMode" data-original-id="visualizerMode">
+                <div class="select-trigger">Bars</div>
+                <div class="select-options hidden">
+                  <div class="option selected" data-value="bars">Bars</div>
+                  <div class="option" data-value="wave">Waveform</div>
+                  <div class="option" data-value="circular">Circular (Pro)</div>
+                  <div class="option" data-value="particles">Particles (Pro)</div>
+                </div>
+              </div>
+            </label>
             <button id="playbackFxResetBtn" type="button" title="Reset playback visual color">FX Reset</button>
           </div>
           <div class="toolbar-group toolbar-group-actions">
@@ -99,6 +111,11 @@
             <canvas id="waveCanvas" width="1280" height="360" aria-label="Waveform Visualizer"></canvas>
           </div>
           <canvas id="spectrumCanvas" width="1280" height="220" aria-label="Spectrum Visualizer"></canvas>
+          <div class="lyrics-overlay hidden" id="lyricsOverlay">
+            <div class="lyrics-content" id="lyricsContent">
+              <p>No lyrics loaded.</p>
+            </div>
+          </div>
         </div>
 
         <div class="empty-state" id="emptyState">Please add media files to start playback.</div>
@@ -147,6 +164,9 @@
           <button id="abBtnA" class="btn-mini" type="button" title="Set A (Start)">Set A</button>
           <button id="abBtnB" class="btn-mini" type="button" title="Set B (End)">Set B</button>
           <button id="abBtnReset" class="btn-mini" type="button" title="Reset A-B">Off</button>
+          <div class="divider"></div>
+          <button id="lyricsBtn" class="icon-btn" type="button" title="Toggle Lyrics Display" aria-label="Lyrics">&#128209;</button>
+          <button id="zenBtn" class="icon-btn" type="button" title="Zen Mode" aria-label="Zen Mode">&#129496;</button>
         </div>
 
         <div class="control-row">
@@ -486,5 +506,6 @@
     <div id="updateToast" class="update-toast hidden" role="status" aria-live="polite"></div>
     <script src="./script.js"></script>
 
+    <div id="osd" class="osd hidden"></div>
   </body>
 </html>
