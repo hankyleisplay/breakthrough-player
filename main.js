@@ -14,7 +14,7 @@ const APP_DATA_DIR_NAME = isDemoBuild ? "breakthroughplayer-demo" : "breakthroug
 
 // Data migration for v1.3.5 -> v1.4.1 (Renamed app)
 try {
-  const oldDirName = isDemoBuild ? "hankyledevteamplayer-demo" : "hankyledevteamplayer";
+  const oldDirName = isDemoBuild ? "breakthroughplayer-demo" : "breakthroughplayer";
   const newDirName = APP_DATA_DIR_NAME;
   
   // Migrate Roaming AppData (userData)
