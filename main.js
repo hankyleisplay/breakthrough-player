@@ -10,7 +10,32 @@ const crypto = require("crypto");
 const { exec, spawn } = require("child_process");
 const appPackage = require("./package.json");
 const isDemoBuild = Boolean(appPackage.demoBuild);
-const APP_DATA_DIR_NAME = isDemoBuild ? "hankyledevteamplayer-demo" : "hankyledevteamplayer";
+const APP_DATA_DIR_NAME = isDemoBuild ? "breakthroughplayer-demo" : "breakthroughplayer";
+
+// Data migration for v1.3.5 -> v1.4.1 (Renamed app)
+try {
+  const oldDirName = isDemoBuild ? "hankyledevteamplayer-demo" : "hankyledevteamplayer";
+  const newDirName = APP_DATA_DIR_NAME;
+  
+  // Migrate Roaming AppData (userData)
+  const ROAMING = app.getPath("appData");
+  const oldRoaming = path.join(ROAMING, oldDirName);
+  const newRoaming = path.join(ROAMING, newDirName);
+  if (fsSync.existsSync(oldRoaming) && !fsSync.existsSync(path.join(newRoaming, "user.bin"))) {
+    fsSync.cpSync(oldRoaming, newRoaming, { recursive: true, force: true });
+  }
+
+  // Migrate Local AppData (sessionData)
+  const LOCAL = process.env.LOCALAPPDATA || path.join(os.homedir(), "AppData", "Local");
+  const oldLocal = path.join(LOCAL, oldDirName);
+  const newLocal = path.join(LOCAL, newDirName);
+  if (fsSync.existsSync(oldLocal) && !fsSync.existsSync(path.join(newLocal, "SessionData", "Local Storage", "leveldb"))) {
+    fsSync.cpSync(oldLocal, newLocal, { recursive: true, force: true });
+  }
+} catch (err) {
+  console.error("Migration error:", err);
+}
+
 
 const LOCAL_APP_DATA = process.env.LOCALAPPDATA || path.join(os.homedir(), "AppData", "Local");
 const SESSION_DATA_DIR = path.join(LOCAL_APP_DATA, APP_DATA_DIR_NAME, "SessionData");
@@ -394,6 +419,14 @@ function createRpcClient() {
   return client;
 }
 
+process.on("unhandledRejection", (reason, promise) => {
+  if (reason && reason.message && reason.message.includes("reading 'write'")) {
+    console.warn("Ignored discord-rpc unhandled rejection (IPC pipe broken)");
+    return;
+  }
+  console.error("Unhandled Rejection at:", promise, "reason:", reason);
+});
+
 async function applyRpcActivity(activity) {
   if (!rpcActive || !rpc) return;
   try {
@@ -401,13 +434,15 @@ async function applyRpcActivity(activity) {
       details: String(activity.details || "Waiting for media...").slice(0, 128),
       state: ((activity.isPro ? "[Pro Edition] " : "") + String(activity.state || "Idle")).slice(0, 128),
       largeImageKey: "app_icon_large",
-      largeImageText: "Hanky Player+",
+      largeImageText: "breakthrough player+",
       smallImageKey: activity.isPro ? "pro_badge" : "free_badge",
       smallImageText: activity.isPro ? "Pro Active" : "Free Version",
       instance: false
     };
     if (activity.endTimestamp) payload.endTimestamp = activity.endTimestamp;
-    await rpc.setActivity(payload);
+    await rpc.setActivity(payload).catch((err) => {
+      throw err;
+    });
   } catch (err) {
     sendDebugLog("Discord RPC setActivity failed", err && err.message ? err.message : String(err));
     rpcActive = false;

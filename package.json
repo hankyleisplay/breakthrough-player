@@ -1,6 +1,6 @@
 {
-  "name": "hankyledevteamplayer",
-  "version": "1.3.4",
+  "name": "breakthroughplayer",
+  "version": "1.4.1",
   "description": "Windows desktop media player",
   "main": "main.js",
   "author": "hanky",
@@ -18,7 +18,7 @@
   },
   "build": {
     "appId": "com.hanky.mediaplayer",
-    "productName": "hankyledevteam Player+",
+    "productName": "breakthrough player+",
     "fileAssociations": [
       {
         "ext": [
@@ -38,7 +38,7 @@
           "m4v"
         ],
         "name": "Media File",
-        "description": "Open media files with hankyledevteam Player+",
+        "description": "Open media files with breakthrough player+",
         "icon": "icon.png"
       }
     ],
@@ -76,7 +76,7 @@
       "allowElevation": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "artifactName": "hankyledevteamplayer-setup-${version}.${ext}"
+      "artifactName": "breakthroughplayer-setup-${version}.${ext}"
     }
   },
   "devDependencies": {

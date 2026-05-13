@@ -1,8 +1,6 @@
-# hankyledevteam Player+ (Windows EXE)
+# breakthrough player+ (Windows EXE)
 
-This repository contains the full application source, but the public-facing baseline code is maintained on the `open-source` branch.
-
-> For the open source skeleton and minimal starter implementation, please switch to or clone the `open-source` branch.
+Electron-based desktop media player that can be packaged as a Windows `.exe`. A premium media experience built for performance and stunning aesthetics.
 
 ## Requirements
 
@@ -19,80 +17,42 @@ npm run dist
 Output folder:
 
 - `release/`
-- Installer: `hankyledevteam Player+ Setup *.exe`
-- Portable: `hankyledevteam Player+ *.exe`
-
-## Run in Development
-
-```powershell
-npm start
-```
+- Installer: `breakthroughplayer-setup-*.exe`
+- Portable: `breakthroughplayer-*.exe`
 
 ## Features
 
-- Video/audio playback with playlist
-- Animated cover area for audio mode
-- Real-time spectrum visualizer
-- Playlist right-click menu (play/rename/remove/reorder)
-- Mini player mode (compact UI + always-on-top window in Electron)
-- Keyboard shortcuts
-- Subtitle support (`.srt` / `.vtt`) (Pro)
-- Resume playback memory by filename
-- Theme switch (Dark / Light)
-- EQ controls and presets (Pro)
-- Fullscreen / loop / shuffle / mute
-- In-app product key activation (`HLP-XXXX-XXXX-XXXX`)
-- In-app Legal & Copyright modal
-- Ability to clear Pro license inside activation dialog
-- First-launch welcome message
+- **Ambilight & Visuals**: Stunning Ambilight effects that automatically adapt to your performance mode (Eco/Balanced/Quality) to save GPU resources.
+- **Real-time Audio Engine**: High-performance real-time spectrum visualizer, 3D Spatial Surround, and Smart Gain Guard.
+- **Discord Rich Presence**: Integrated Discord RPC that intelligently reconnects without crashing.
+- **Seamless Updates**: Built-in auto data migration ensures your playlists, settings, and Pro licenses are preserved across major version updates and rebranding.
+- **Playlist & File Management**: Playlist right-click menu (play/rename/remove/reorder) and adjacent subtitle/lyric auto-loading.
+- **Mini Player Mode**: Compact UI with an always-on-top window.
+- **Hardware Bound Licensing**: Secure offline and online HWID-based Pro activation system.
+- **Resume playback**: Automatic playback memory by filename.
+- **In-app AI Auto Repair**: Instantly diagnose and fix media decoding errors.
 
-## Commercial Files
+## ⚖️ Semi-Open Source License Model
 
-- `PRODUCT_PAGE.md`: sales page copy
-- `PRICING.md`: pricing package and offer structure
-- `EULA.md`: End User License Agreement draft
-- `PRIVACY_POLICY.md`: privacy policy draft
+**breakthrough player+** operates under a **Semi-Open Source (Source-Available) / Freemium** model. We believe in transparency and community, which is why our client-side source code is open for you to review, learn from, and audit.
 
-## License Key Generation
+- **Free Version**: You can use the core media playback features, playlist management, and basic visualizers entirely for free.
+- **Pro Features**: Advanced features (such as 3D Spatial Surround, Late Night Mode, Ambilight, and Subtitle Sync) require a **Pro License Key**.
 
-Build `generate-license-key.exe`:
+> [!IMPORTANT]  
+> While the code is visible, modifying the source code to bypass the HWID-bound license verification is strictly prohibited under our End User License Agreement (EULA). Please support the development by purchasing a legitimate Pro license.
 
-```powershell
-npm run build:keygen
-```
+### Activating Pro
+1. Download and open the application.
+2. Click on the **Activate Pro** button in the top menu.
+3. Copy your unique **HWID**.
+4. Purchase a key from our [Product Page](./PRODUCT_PAGE.md).
+5. Enter your `HLP-XXXX-XXXX-XXXX` key to permanently unlock Pro features for your device.
 
-Or via PowerShell helper:
+## 🏗️ Architecture Overview
 
-```powershell
-.\tools\build-keygen.ps1
-```
+- `main.js`: Electron main process handling Discord RPC, seamless data migration, and IPC bridges.
+- `index.html` / `style.css` / `script.js`: The frontend Renderer UI, featuring a modern glassmorphic design system and the core playback logic.
 
-In app, copy the target machine HWID from `Activate Pro` dialog.
-
-Then run exe (1 key for specific HWID):
-
-```powershell
-.\tools\generate-license-key.exe <HWID>
-```
-
-Generate 50 keys for specific HWID:
-
-```powershell
-.\tools\generate-license-key.exe <HWID> 50
-```
-
-It writes results to `generated-keys-<HWID>.txt` in your current folder.
-
-You can still run JS directly if needed:
-
-```powershell
-node .\tools\generate-license-key.js <HWID> 50
-```
-
-## Main Files
-
-- `main.js`: Electron main process
-- `index.html` / `style.css` / `script.js`: renderer UI and player logic
-- `tools/generate-license-key.js`: local key generator source
-- `tools/build-keygen.ps1`: helper script to build keygen exe
-- `package.json`: build and dependency config
+---
+*For commercial inquiries, please refer to our [EULA](./EULA.md) and [Privacy Policy](./PRIVACY_POLICY.md).*

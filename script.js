@@ -244,7 +244,7 @@ const debugBuffer = [];
 let currentMediaStats = null;
 let appRuntimeInfo = {
   version: "",
-  name: "hankyledevteam Player+",
+  name: "breakthrough player+",
   isDemo: false,
   previousRunCrashed: false
 };
@@ -330,7 +330,7 @@ function applyEditionState() {
     brandKicker.textContent = demo ? "Desktop Media Player Demo" : "Desktop Media Player";
   }
   if (appTitle) {
-    appTitle.textContent = appRuntimeInfo.name || (demo ? "hankyledevteam Player+ Demo" : "hankyledevteam Player+");
+    appTitle.textContent = appRuntimeInfo.name || (demo ? "breakthrough player+ Demo" : "breakthrough player+");
   }
   if (editionBadge) {
     editionBadge.classList.toggle("hidden", !demo);
@@ -2110,16 +2110,12 @@ async function togglePiP() {
 
 function startAmbilightLoop() {
   if (!isAmbilightOn || ambilightAnimationId) return;
-  const loop = () => {
-    updateAmbilight();
-    ambilightAnimationId = requestAnimationFrame(loop);
-  };
-  ambilightAnimationId = requestAnimationFrame(loop);
+  ambilightAnimationId = setInterval(updateAmbilight, 100);
 }
 
 function stopAmbilightLoop() {
   if (ambilightAnimationId) {
-    cancelAnimationFrame(ambilightAnimationId);
+    clearInterval(ambilightAnimationId);
     ambilightAnimationId = null;
   }
   if (mediaContainer) {
@@ -2129,6 +2125,7 @@ function stopAmbilightLoop() {
 
 function updateAmbilight() {
   if (!isAmbilightOn || !ambilightCtx || media.paused || media.ended || media.readyState < 2) return;
+  if (activePerformanceProfile === performanceProfiles.eco) return;
   
   if (media.videoWidth > 0) {
     ambilightCtx.drawImage(media, 0, 0, 10, 10);

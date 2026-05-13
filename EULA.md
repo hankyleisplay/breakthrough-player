@@ -2,7 +2,7 @@
 
 Last updated: March 22, 2026
 
-This End User License Agreement ("Agreement") is a legal agreement between the end user ("User") and hankyledevteam ("Licensor") for the software product hankyledevteam Player+ ("Software").
+This End User License Agreement ("Agreement") is a legal agreement between the end user ("User") and breakthrough ("Licensor") for the software product breakthrough player+ ("Software").
 
 ## 1. License Grant
 

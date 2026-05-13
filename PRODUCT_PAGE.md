@@ -1,11 +1,11 @@
-# hankyledevteam Player+
+# breakthrough player+
 
 A premium desktop media player for Windows focused on speed, control, and clean audio.
 
 ## Hero Copy
 
 Play everything. Control everything.
-From music sessions to full video playback, hankyledevteam Player+ gives you a modern UI, realtime EQ, spectrum visuals, subtitle support, and compact mini-player mode.
+From music sessions to full video playback, breakthrough player+ gives you a modern UI, realtime EQ, spectrum visuals, subtitle support, and compact mini-player mode.
 
 ## Key Benefits
 

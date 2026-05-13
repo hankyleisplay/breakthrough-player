@@ -3,3 +3,8 @@ release/
 release-demo/
 *.log
 .env
+
+tools/generate-license-key.js
+tools/license-server.js
+tools/*.exe
+

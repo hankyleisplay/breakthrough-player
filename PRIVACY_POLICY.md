@@ -2,7 +2,7 @@
 
 Last updated: March 22, 2026
 
-hankyledevteam ("we", "us", "our") provides hankyledevteam Player+ ("App"). This Privacy Policy explains what data we collect and how we use it.
+breakthrough ("we", "us", "our") provides breakthrough player+ ("App"). This Privacy Policy explains what data we collect and how we use it.
 
 ## 1. Data We Collect
 
